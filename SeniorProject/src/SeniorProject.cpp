@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 		manifest.push_back(a);
 	}
 
+	// Run the placement algorithm on the manifest
 	placement(manifest);
 
 }
