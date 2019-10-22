@@ -23,6 +23,7 @@ private:
 	int length;
 	int width;
 	int fragility;
+	std::vector<int> location;
 	std::string description;
 // Declare all functions as private
 public:
@@ -38,9 +39,10 @@ public:
 	void setWidth(int);
 	int getFragility();
 	void setFragility(int);
+	std::vector<int> getLocation();
+	void setLocation(std::vector<int>);
 	std::string getDescription();
 	void setDescription(std::string);
-	Package();
 	Package(int, int, int, int, int, int);
 	int findVolume();
 };
@@ -49,9 +51,9 @@ public:
 class Trailer {
 private:
 	// Trailer broken up over half a foot
-	const static int length = 53;
-	const static int width = 8;
-	const static int height = 13;
+	const static int length = 5;	// 53
+	const static int width = 5;		// 8.5
+	const static int height = 5;	// 13
 	int volume = length * width * height;
 	int simulation [length][width][height];
 public:
@@ -63,15 +65,14 @@ public:
 	int getHeight();
 	void setHeight(int);
 	int findVolume();
-	//void lowerVolume();
-	//int findVolume();
+	void placePackage(Package);
 	Trailer();
 	void findOpenLocation();
-	int* findLocation(Package);
+	std::vector<int> findLocation(Package);
 };
 
 // Place the packages
-void placement(std::vector<Package>);
+void pickNext(std::vector<Package>);
 
 
 #endif /* PLACEMENTALGO_H_ */

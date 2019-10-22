@@ -56,6 +56,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Run the placement algorithm on the manifest
-	placement(manifest);
+	pickNext(manifest);
 
 }
