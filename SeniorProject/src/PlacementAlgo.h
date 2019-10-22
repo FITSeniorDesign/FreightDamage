@@ -42,15 +42,18 @@ public:
 	void setDescription(std::string);
 	Package();
 	Package(int, int, int, int, int, int);
+	int findVolume();
 };
 
 // Create a Trailer Class
 class Trailer {
 private:
 	// Trailer broken up over half a foot
-	int length = 106;
-	int width = 17;
-	int height = 26;
+	const static int length = 53;
+	const static int width = 8;
+	const static int height = 13;
+	int volume = length * width * height;
+	int simulation [length][width][height];
 public:
 	void updateSimulation ();
 	int getLength();
@@ -59,8 +62,12 @@ public:
 	void setWidth(int);
 	int getHeight();
 	void setHeight(int);
-	Trailer (int, int, int);
-	void constructSimulation();
+	int findVolume();
+	//void lowerVolume();
+	//int findVolume();
+	Trailer();
+	void findOpenLocation();
+	int* findLocation(Package);
 };
 
 // Place the packages

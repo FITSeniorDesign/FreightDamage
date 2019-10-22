@@ -73,6 +73,10 @@ void Package::setDescription(std::string description) {
 	this->description = description;
 }
 
+int Package::findVolume() {
+	return length * width * height;
+}
+
 /*
  * Function: Package
  * Description: Used to construct a Package object
@@ -108,50 +112,57 @@ int Trailer::getWidth() {
 	return this->width;
 }
 
-// Trailer setter functions for each attribute
-void Trailer::setHeight(int height) {
-	this->height = height;
-}
 
-void Trailer::setLength(int length) {
-	this->length = length;
-}
-
-void Trailer::setWidth(int width) {
-	this->width = width;
-}
-
-/*
- * Function: Trailer
- * Description: Used to construct a Trailer object
- * Parameters: length, length of the trailer
- * 			   width, width of the trailer
- * 			   height, height of the trailer
- */
-Trailer::Trailer(int lenth, int width, int height) {
-	setLength(length);
-	setWidth(width);
-	setHeight(height);
-}
-
-/*
- * Function: constructSimulation
- * Description: Used to construct a 3D Trailer
- * Parameters: none
- */
-void Trailer::constructSimulation () {
-	int simulation[length][width][height];
-	for (int l = 0; l < length; l++) {
-		cout << simulation[l][0][0]<< endl;
+Trailer::Trailer() {
+	for (int i = 0; i < this->length; i++) {
+		for (int j = 0; j < this->width; j++) {
+			for (int k = 0; k < this->height; k++) {
+				simulation[i][j][k] = 0;
+			}
+		}
 	}
+}
 
+int* Trailer::findLocation(Package package) {
+	int locLen = 0, locWid = 0, locHei = 0, *ptr;
+	bool fitsHeight = false, fitsWidth = false, fitsLength = false;
+	//for (int length = locLen; length < this->length; length++) {
+		for (int width = locWid; width < this->width; width++) {
+			for (int height = locHei; height < this->height; height++) {
+				if (simulation[length][width][height] == 0) {
+					locHei = height;
+					int i = 0;
+					for (; i < package.getHeight(); i++) {
+						if (simulation[length][width][height+i] != 0) {
+							fitsHeight = false;
+							break;
+						}
+					}
+					if (!fitsHeight) {
+						height += i;
+						fitsHeight = true;
+					} else	break;
+					cout << "doesn't fit, move over" << endl;
+				}
+			}
+			cout << "height starts at: " << locHei << endl;
+		}
+		if (abs(width - locWid) >= package.getWidth()) {
+			cout << "I am here" << endl;
+		}
+	//}
+	return ptr;
+}
+
+int Trailer::findVolume() {
+	return this->volume;
 }
 
 
 
 /*
  * Function: heapify
- * Description: Used to sort the max heap based off of the key
+ * Description: Used to sort the min heap based off of the key
  * Parameters: heap, a pointer to a vector of Packages
  *             index, location of where to sort the heap.
  */
@@ -161,11 +172,11 @@ void heapify (vector<Package> *heap, int index) {
 	int right = 2 * index + 2;							// Find the right child
 
 	// Check if the left child is greater than the parent based off key
-	if (left < (int)heap->size() && (*heap)[left].getFragility() > (*heap)[largest].getFragility())
+	if (left < (int)heap->size() && (*heap)[left].getFragility() < (*heap)[largest].getFragility())
 		largest = left;
 
 	// Check if the right child is greater than the parent based off key
-	if (right < (int)heap->size() && (*heap)[right].getFragility() > (*heap)[largest].getFragility())
+	if (right < (int)heap->size() && (*heap)[right].getFragility() < (*heap)[largest].getFragility())
 		largest = right;
 
 	// Check if the parent has moved
@@ -182,20 +193,11 @@ void heapify (vector<Package> *heap, int index) {
 }
 
 /*
- * Function: peekHeap
- * Description: Used to return the top key from the max heap item without removing it
+ * Function: removemin
+ * Description: Used to remove the top key from the min heap
  * Parameters: heap, a pointer to a vector of Packages
  */
-Package peekHeap(vector <Package> *heap) {
-	return (*heap)[0];									// Return the value of the top element in the list
-}
-
-/*
- * Function: removeMax
- * Description: Used to remove the top key from the max heap
- * Parameters: heap, a pointer to a vector of Packages
- */
-Package removeMax(vector <Package> *heap) {
+Package removeMin(vector <Package> *heap) {
 	Package popped = (*heap)[0];						// Save the top element
 	(*heap)[0] = (*heap)[(*heap).size() - 1];			// Move the last element to the top
 	(*heap).pop_back();									// Remove the last element from the heap
@@ -205,31 +207,100 @@ Package removeMax(vector <Package> *heap) {
 
 /*
  * Function: makeHeap
- * Description: Used to construct the max heap using a vector
+ * Description: Used to construct the min heap using a vector
  * Parameters: heap, a pointer to a vector of Packages
  */
 void makeHeap(vector<Package> *heap) {
 	int lastNonLeaf = (heap->size()/2) - 1;				// Find the last location of a non-leaf in the vector
 
 	for (int i = lastNonLeaf; i >= 0; i--)				// Iterate over all non-leaves
-		heapify (heap, i);								// Create a max heap on the non-leaves
+		heapify (heap, i);								// Create a min heap on the non-leaves
+}
+
+int compareWeight(Package a, Package b) {
+	if (a.getWeight() > b.getWeight()) {
+		return -1;
+	} else if (a.getWeight() < b.getWeight()) {
+		return 1;
+	}
+	return 0;
+}
+
+void compareSecondary (vector <Package> *collision, Trailer *trailer){
+	for (int i = 1; i < (int)(*collision).size(); i++) {
+		bool firstFits = false, secondFits = false;
+
+		char compare = 0;
+
+		// Check if the volumes of both fit in the truck
+		if ((*trailer).findVolume() > (*collision)[0].findVolume()) {
+			//int *ptr = 0;
+			//if (ptr != nullptr)
+			//	firstFits = true;
+			//else
+			//	compare++;					// Swap out the first one with the second one
+		}
+
+		if ((*trailer).findVolume() > (*collision)[i].findVolume()) {
+			int *ptr = 0;
+			if (ptr != nullptr)
+				secondFits = true;
+		}
+
+		if (firstFits & secondFits) {
+			// Check the weight of the packages
+			compare = compareWeight((*collision)[0], (*collision)[i]);
+
+		}
+
+		// If the second package should be placed first
+		if (compare > 0) {
+			// Swap the two packages
+			Package temp = (*collision)[0];
+			(*collision)[0] = (*collision)[i];
+			(*collision)[i] = temp;
+		}
+	}
 }
 
 /*
  * Function: placement
- * Description: Used to construct the max heap using a vector
+ * Description: Used to construct the min heap using a vector
  * Parameters: manifest, a vector of Packages
  */
 void placement(vector<Package> manifest) {
 	// Construct a heap using a vector
-	Trailer trailer = Trailer(53*2, 8.5*2, 13*2);
+	Trailer trailer = Trailer();
 
-	trailer.constructSimulation();
+	//cout << trailer.findVolume() << endl;
+	//trailer.constructSimulation();
 
-	makeHeap(&manifest);										// Create a max heap using the vector
+	makeHeap(&manifest);										// Create a min heap using the vector
+
+	vector <Package> collision;
+	int diff = 10;
 
 	// Test to show the heap works properly
-	while(manifest.size() > 0)
-		cout << removeMax(&manifest).getFragility() << endl;
+	while(manifest.size() > 0) {
+		collision.push_back(removeMin(&manifest));
+
+		while (manifest.size() > 0 && abs(manifest.front().getFragility() - collision.front().getFragility()) <= diff)
+			collision.push_back(removeMin(&manifest));
+
+		// If there is a collision
+		if (collision.size() > 1) {
+
+			// Determine which pacakges fit in the truck
+			compareSecondary(&collision, &trailer);
+
+			// Add the rest of the list back to the manifest and make it a heap again
+			manifest.insert(manifest.end(), collision.begin() + 1, collision.end());
+			makeHeap(&manifest);
+		}
+
+		cout << collision.front().getFragility() << endl;
+		collision.clear();
+		//cout << removeMin(&manifest).getFragility() << endl;
+	}
 
 }
