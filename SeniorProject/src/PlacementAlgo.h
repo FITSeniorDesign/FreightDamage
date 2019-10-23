@@ -15,6 +15,7 @@
 
 // Create a Package Class
 class Package{
+
 // Declare all attributes as private
 private:
 	int iD;
@@ -47,6 +48,7 @@ public:
 
 // Create a Trailer Class
 class Trailer {
+
 // Declare all attributes as private
 private:
 	// Trailer broken up over half a foot
@@ -54,6 +56,7 @@ private:
 	const static int width = 5;		// 8.5
 	const static int height = 5;	// 13
 	int volume = length * width * height;
+
 //Declare all functions as public
 public:
 	int simulation [length][width][height];
@@ -72,8 +75,7 @@ public:
 	std::vector<int> findLocation(Package);
 };
 
-// Place the packages
+// Determine where the package should go
 Trailer pickNext(std::vector<Package>, int);
-
 
 #endif /* PLACEMENTALGO_H_ */
