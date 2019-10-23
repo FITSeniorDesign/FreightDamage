@@ -40,6 +40,7 @@ public:
 	void setWidth(int);
 	int getFragility();
 	void setFragility(int);
+	void swapLengthAndWidth();
 	std::vector<int> getLocation();
 	void setLocation(std::vector<int>);
 	Package(int, int, int, int, int, int);
@@ -72,7 +73,7 @@ public:
 	Trailer();
 	void printTrailer();
 	void findOpenLocation();
-	std::vector<int> findLocation(Package);
+	std::vector<int> findLocation(Package, bool);
 };
 
 // Determine where the package should go
