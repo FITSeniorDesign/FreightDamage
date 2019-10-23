@@ -111,7 +111,10 @@ vector <int> Trailer::findLocation(Package package) {
 	for (int length = 0; length < this->length; length++) {
 		for (int width = 0; width < this->width; width++) {
 			for (int height = 0; height < this->height; height++) {
-				if (simulation[length][width][height] == 0) {
+				if (simulation[length][width][height] == 0 &&
+						(abs(height - this->height) >= package.getHeight()) &&
+						(abs(width - this->width)   >= package.getWidth()) &&
+						(abs(length - this->length) >= package.getLength())) {
 					bool fits = true;
 					//cout << package.getLength() << endl << package.getWidth() << endl << package.getHeight() << endl ;
 					for (int i = 0; i < package.getLength() && fits; i++) {
