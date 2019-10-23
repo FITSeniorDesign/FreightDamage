@@ -1,15 +1,17 @@
 //============================================================================
-// Name        : PlacementAlgo.cpp
-// Author      : Chad Boyer (cboyer2016@my.fit.edu)
+// Name:		 PlacementAlgo.cpp
+// Author:		 Chad Boyer (cboyer2016@my.fit.edu)
 //				 William Ferrick (wferrick2016@my.fit.edu)
 //				 Jordan Murray (jmurray2016@my.fit.edu)
 //				 Connor Roth (croth2016@my.fit.edu)
-// Description : Source file to place Packages into a Trailer
+// Description:	 Source file to place Packages into a Trailer
 //============================================================================
 
-
+// Include all packages
 #include <iostream>
 #include <string>
+
+// Include the function headers
 #include "PlacementAlgo.h"
 
 using namespace std;
@@ -27,8 +29,6 @@ int Package::getWeight() {	return this->weight;	}
 
 int Package::getWidth() {	return this->width;	}
 
-std::string Package::getDescription() {	return this->description;	}
-
 vector<int> Package::getLocation() {	return location;	}
 
 // Package setter functions for each attribute
@@ -44,30 +44,34 @@ void Package::setWeight(int weight) {	this->weight = weight;	}
 
 void Package::setWidth(int width) {	this->width = width;	}
 
-void Package::setDescription(std::string description) {	this->description = description;	}
-
-int Package::findVolume() {	return length * width * height;	}
-
 void Package::setLocation(vector<int> location) {	this->location = location;	}
 
 /*
- * Function: Package
+ * Function: 	findVolume
+ * Description: Used to return the volume of the package
+ * Parameters: 	none
+ */
+int Package::findVolume() {	return length * width * height;	}
+
+
+/*
+ * Function: 	Package
  * Description: Used to construct a Package object
- * Parameters: iD, the ID of the package
- *             weight, the weight of the package
- *             length, the length of the package
- *             width, the width of the package
- *             height, the height of the package
- *             fragility, the fragility of the package
+ * Parameters: 	iD, the ID of the package
+ *             	weight, the weight of the package
+ *             	length, the length of the package
+ *             	width, the width of the package
+ *             	height, the height of the package
+ *             	fragility, the fragility of the package
  */
 Package::Package(int iD, int weight, int length, int width, int height, int fragility) {
-	// Call setter functions on each attribute
-	setID(iD);
-	setWeight(weight);
-	setLength(length);
-	setWidth(width);
-	setHeight(height);
-	setFragility(fragility);
+	// Call setter functions called on each attribute
+	setID(iD);					// Set the ID of the package
+	setWeight(weight);			// Set the Weight of the package
+	setLength(length);			// Set the Length of the package
+	setWidth(width);			// Set the Width of the package
+	setHeight(height);			// Set the Height of the apckage
+	setFragility(fragility);	// Set the fragility of the package
 }
 
 
@@ -79,45 +83,56 @@ int Trailer::getLength() {	return this->length;	}
 
 int Trailer::getWidth() {	return this->width;	}
 
+/*
+ * Function: 	Trailer
+ * Description: Used to construct a Trailer object
+ * Parameters: 	none
+ */
 int Trailer::findVolume() {	return this->volume;	}
 
+/*
+ * Function: 	Trailer
+ * Description: Used to construct a Trailer object
+ * Parameters: 	none
+ */
 Trailer::Trailer() {
-	for (int i = 0; i < this->length; i++) {
-		for (int j = 0; j < this->width; j++) {
-			for (int k = 0; k < this->height; k++) {
-				simulation[i][j][k] = 0;
+	for (int i = 0; i < this->length; i++) {			// ITerate over the length of the truck
+		for (int j = 0; j < this->width; j++) {			// Iterate over the width of the truck
+			for (int k = 0; k < this->height; k++) {	// Iterate over the height of the truck
+				simulation[i][j][k] = 0;				// Initialize each element to 0
 			}
 		}
 	}
-	simulation [0][0][1] = 1;
 }
 
 vector <int> Trailer::findLocation(Package package) {
-	cout << "findLocation" << endl;
+	//cout << "findLocation" << endl;
 	vector <int> location;
 	for (int length = 0; length < this->length; length++) {
 		for (int width = 0; width < this->width; width++) {
 			for (int height = 0; height < this->height; height++) {
 				if (simulation[length][width][height] == 0) {
 					bool fits = true;
-					cout << package.getLength() << endl << package.getWidth() << endl << package.getHeight() << endl ;
+					//cout << package.getLength() << endl << package.getWidth() << endl << package.getHeight() << endl ;
 					for (int i = 0; i < package.getLength() && fits; i++) {
 						for (int j = 0; j < package.getWidth() && fits; j++) {
 							for (int k = 0; k < package.getHeight() && fits; k++) {
-								cout << "length: " << length + i << " width: " << width + j << " height: " << height + k << endl;
+								//cout << "length: " << length + i << " width: " << width + j << " height: " << height + k << endl;
+								//if (length+i == 0 && width+j == 1 && height+k == 0) {
+								//	cout << simulation[length+i][width+j][height+k];
+								//}
 								if (simulation[length+i][width+j][height+k] != 0) {
-									cout << "there is a package here";
+									cout << "there is a package here" << endl;
 									length += i;
 									width += j;
 									height += k;
 									fits = false;
-									//break;
 								}
 							}
 						}
 					}
 					if (fits) {
-						cout << "fits" << endl;
+						//cout << "fits" << endl;
 						location.push_back(length);
 						location.push_back(width);
 						location.push_back(height);
@@ -134,12 +149,23 @@ vector <int> Trailer::findLocation(Package package) {
 
 
 void Trailer::placePackage(Package package) {
-	cout << "locLen: " << package.getLocation()[0] << " locWid: " << package.getLocation()[1] << " locHei: " << package.getLocation()[2] << endl;
 	for(int length = 0; length < package.getLength(); length++) {
 		for(int width = 0; width < package.getWidth(); width++) {
 			for(int height = 0; height < package.getHeight(); height++) {
+				simulation[(package.getLocation())[0] + length][(package.getLocation())[1] + width][(package.getLocation())[2] + height] = package.getID();
+			}
+		}
+	}
+	this->volume -= package.findVolume();		// Deduct the volume of the package from the overall volume of the trailer
+}
 
-				//cout << p.getLocation()<< endl;//[length][width][height] = 1;
+void Trailer::printTrailer() {
+	// Output the package ID at each spot
+	for (int i = 0; i < this->getLength(); i++) {
+		for (int j = 0; j < this->getWidth(); j++) {
+			for (int k = 0; k < this->getHeight(); k++) {
+				cout << "[" << i << "][" << j << "][" << k << "] = " << this->simulation[i][j][k] << endl;
+				//simulation[i][j][k] = 0;
 			}
 		}
 	}
@@ -254,18 +280,15 @@ void compareSecondary (vector <Package> *collision, Trailer *trailer){
 	}
 }
 
-
 /*
  * Function: pickNext
  * Description: Used to construct the min heap using a vector
  * Parameters: manifest, a vector of Packages
  */
-void pickNext(vector<Package> manifest) {
+Trailer pickNext(vector<Package> manifest, int diff) {
 	// Construct a heap using a vector
 	Trailer trailer = Trailer();
 	makeHeap(&manifest);										// Create a min heap using the vector
-
-	int diff = 5;
 
 	// Test to show the heap works properly
 	while(manifest.size() > 0) {
@@ -296,12 +319,9 @@ void pickNext(vector<Package> manifest) {
 			makeHeap(&manifest);
 		} else {								// Check if the other package can be placed
 			collision.front().setLocation(trailer.findLocation(collision.front()));
-			if (collision.front().getLocation().size() == 0) {
-				continue;
-			}
+			if (collision.front().getLocation().size() == 0)	continue;
 		}
-		// Place Item in the truck
-		trailer.placePackage(collision.front());
+		trailer.placePackage(collision.front());						// Place package in the truck
 	}
-
+	return trailer;
 }

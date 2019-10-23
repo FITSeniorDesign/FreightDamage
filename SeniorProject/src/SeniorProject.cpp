@@ -56,6 +56,11 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Run the placement algorithm on the manifest
-	pickNext(manifest);
+	//for (int i = 0; i < 15; i++) {
+	//	cout << i << endl;
+		Trailer trailer = pickNext(manifest, 10);
+		trailer.printTrailer();
+
+	//}
 
 }
