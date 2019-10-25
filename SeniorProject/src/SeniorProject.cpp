@@ -8,10 +8,12 @@
 //============================================================================
 
 // Include Packages
+#include "mainwindow.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <QApplication>
 
 // Include header files
 #include "PlacementAlgo.h"
@@ -57,5 +59,12 @@ int main(int argc, char *argv[]) {
 
 	// Run the placement algorithm on the manifest
 	placement(manifest);
+
+
+    //Implementation of GUI
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
 
 }
