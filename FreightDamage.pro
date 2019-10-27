@@ -18,15 +18,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     SeniorProject/src/SeniorProject.cpp \
     SeniorProject/src/PlacementAlgo.cpp \
+    SeniorProject/src/damagereport.cpp \
     SeniorProject/src/mainwindow.cpp
 
 HEADERS += \
     SeniorProject/src/PlacementAlgo.h \
+    SeniorProject/src/damagereport.h \
     SeniorProject/src/mainwindow.h
 
 
 
 FORMS += \
+    SeniorProject/src/damagereport.ui \
     SeniorProject/src/mainwindow.ui
 
 
