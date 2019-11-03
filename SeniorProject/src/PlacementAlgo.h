@@ -15,6 +15,7 @@
 
 // Create a Package Class
 class Package{
+
 // Declare all attributes as private
 private:
 	int iD;
@@ -23,8 +24,9 @@ private:
 	int length;
 	int width;
 	int fragility;
-	std::string description;
-// Declare all functions as private
+	std::vector<int> location;
+
+// Declare all functions as public
 public:
 	int getID();
 	void setID(int);
@@ -38,20 +40,27 @@ public:
 	void setWidth(int);
 	int getFragility();
 	void setFragility(int);
-	std::string getDescription();
-	void setDescription(std::string);
-	Package();
+	void swapLengthAndWidth();
+	std::vector<int> getLocation();
+	void setLocation(std::vector<int>);
 	Package(int, int, int, int, int, int);
+	int findVolume();
 };
 
 // Create a Trailer Class
 class Trailer {
+
+// Declare all attributes as private
 private:
 	// Trailer broken up over half a foot
-	int length = 106;
-	int width = 17;
-	int height = 26;
+	const static int length = 5;	// 53
+	const static int width = 5;		// 8.5
+	const static int height = 5;	// 13
+	int volume = length * width * height;
+
+//Declare all functions as public
 public:
+	int simulation [length][width][height];
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
@@ -59,12 +68,15 @@ public:
 	void setWidth(int);
 	int getHeight();
 	void setHeight(int);
-	Trailer (int, int, int);
-	void constructSimulation();
+	int findVolume();
+	void placePackage(Package);
+	Trailer();
+	void printTrailer();
+	void findOpenLocation();
+	std::vector<int> findLocation(Package, bool);
 };
 
-// Place the packages
-void placement(std::vector<Package>);
-
+// Determine where the package should go
+Trailer pickNext(std::vector<Package>, int);
 
 #endif /* PLACEMENTALGO_H_ */
