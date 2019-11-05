@@ -41,22 +41,28 @@ int main(int argc, char *argv[]) {
 
 	while (getline(file, input, '\n')) {									// Iterate over each line in the input
 		vector<int> packageInfo;											// Vector to hold the package information
-
 		for (int start = 0, end = 0; start < (int)input.length(); end++)	// Iterate over the entire string
 			if (input[end] == ',') {										// A comma is found
-				packageInfo.push_back(stoi(input.substr(start, end)));		// Convert the string to an int and save
+				try {
+					packageInfo.push_back(stoi(input.substr(start, end)));		// Convert the string to an int and save
+				} catch (...) {
+					if (input.substr(start, end) == "Yes")
+						packageInfo.push_back(1);
+					else
+						packageInfo.push_back(0);
+				}
 				start = end + 1;											// Move passed the comma
 			}
 
 		manifest.push_back(Package(packageInfo[0], packageInfo[1],			// Add the package object to a list of all package objects
 				packageInfo[2], packageInfo[3], packageInfo[4],
-				packageInfo[5]));
+				packageInfo[5], packageInfo[6]));
 	}
 
 	// Run function pickNext to decide what to place next
 	for (int i = 10; i < 11; i++) {											// Check over multiple different options
 		Trailer trailer = pickNext(manifest, i);							// Return the trailer of all the items placed
-		cout << "Trailer volume: " << trailer.findVolume() << endl;												// List the volume consumed in the trailer
+		cout << "Trailer Remaining Volume: " << trailer.findVolume() << endl;												// List the volume consumed in the trailer
 		trailer.printTrailer();												// Test, do not include in final product
 	}
 

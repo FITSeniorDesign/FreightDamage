@@ -34,6 +34,8 @@ int Package::getWidth() {	return this->width;	}
 
 vector<int> Package::getLocation() {	return location;	}
 
+bool Package::getIsPallet() {	return this->isPallet;	}
+
 // Package setter functions for each attribute
 void Package::setFragility(int fragility) {	this->fragility = fragility;	}
 
@@ -49,6 +51,8 @@ void Package::setWidth(int width) {	this->width = width;	}
 
 void Package::setLocation(vector<int> location) {	this->location = location;	}
 
+void Package::setIsPallet(bool isPallet) {	this->isPallet = isPallet;	}
+
 /*
  * Function: 	swapLengthAndWidth
  * Description: Used to check if the package will fit turned 90 degrees
@@ -60,6 +64,32 @@ void Package::swapLengthAndWidth(){
 	length = width;
 	width = temp;
 }
+
+/*
+ * Function: 	swapLengthAndHeight
+ * Description: Used to check if the package will fit turned 90 degrees
+ * Parameters: 	none
+ * Returns:		none
+ */
+void Package::swapLengthAndHeight(){
+	int temp = length;
+	length = height;
+	height = temp;
+}
+
+/*
+ * Function: 	swapHeightAndWidth
+ * Description: Used to check if the package will fit turned 90 degrees
+ * Parameters: 	none
+ * Returns:		none
+ */
+void Package::swapHeightAndWidth(){
+	int temp = height;
+	height = width;
+	width = temp;
+}
+
+
 
 /*
  * Function: 	findVolume
@@ -80,7 +110,7 @@ int Package::findVolume() {	return length * width * height;	}
  *             	fragility, the fragility of the package
  * Returns:		none
  */
-Package::Package(int iD, int weight, int length, int width, int height, int fragility) {
+Package::Package(int iD, int weight, int length, int width, int height, int fragility, bool isPallet) {
 	// Call setter functions called on each attribute
 	setID(iD);					// Set the ID of the package
 	setWeight(weight);			// Set the Weight of the package
@@ -88,6 +118,7 @@ Package::Package(int iD, int weight, int length, int width, int height, int frag
 	setWidth(width);			// Set the Width of the package
 	setHeight(height);			// Set the Height of the apckage
 	setFragility(fragility);	// Set the Fragility of the package
+	setIsPallet(isPallet);		// Set the packaging type
 }
 
 
@@ -130,7 +161,7 @@ Trailer::Trailer() {
  * 				secondRun, shows if the length and width swapped
  * Returns:		location of the package in the trailer
  */
-vector <int> Trailer::findLocation(Package package, bool secondRun) {
+vector <int> Trailer::findLocation(Package package) {
 	vector <int> location;															// Location where package should go
 
 	// See if the package will fit
@@ -148,9 +179,6 @@ vector <int> Trailer::findLocation(Package package, bool secondRun) {
 						for (int j = 0; j < package.getLength() && fits; j++) {		// Iterate over the length of the package
 							for (int k = 0; k < package.getWidth() && fits; k++) {	// Iterate over the width of the package
 								if (simulation[height+i][length+j][width+k] != 0) {	// Check if the spot is taken
-									height += i;									// Move the height to the tested location
-									length += j;									// Move the length to the tested location
-									width += k;										// Move the width to the tested location
 									fits = false;									// Stops loops
 								}
 							}
@@ -170,11 +198,6 @@ vector <int> Trailer::findLocation(Package package, bool secondRun) {
 				}
 			}
 		}
-	}
-	if (!secondRun) {																// Check if the length and width should be swapped
-		cout << "Swapped length and width for package: " << package.getID() << endl;// Done to test for output
-		package.swapLengthAndWidth();												// Swap the length and width
-		return findLocation(package, true);											// Return the function call
 	}
 	return location;																// Return the location found and empty if no spot
 }
@@ -197,6 +220,40 @@ void Trailer::placePackage(Package package) {
 		}
 	}
 	this->volume -= package.findVolume();									// Deduct the volume of the package from the overall volume of the trailer
+}
+
+/*
+ * Function: 	palletLocation
+ * Description: USed to rotate the pallet correctly
+ * Parameters: 	pallet, Package to be rotated
+ * Returns:		none
+ */
+std::vector <int> Trailer::palletLocation(Package pallet) {
+	vector <int> location = this->findLocation(pallet);		// Test the packages current dimensions for a spot (LWH)
+	if (location.size() != 0) 	return location;			// The package fits, return the location
+	pallet.swapLengthAndWidth();							// Rotate the Package's Length and Width (WLH)
+	location = this->findLocation(pallet);					// Test the packages current dimensions for a spot
+	return location;
+}
+
+std::vector <int> Trailer::crateLocation(Package crate) {
+	vector <int> location = palletLocation(crate);			// Check if rotation like a pallet will work (LWH, WLH)
+	if (location.size() != 0)	return location;			// The package fits, return the location
+
+	crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (WLH)
+	crate.swapHeightAndWidth();								// Rotate the Package's Height and Width (WHL)
+	location = this->findLocation(crate);					// Test the packages current dimensions for a spot
+	if (location.size() != 0)	return location;			// The package fits, return the location
+	crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (HWL)
+	location = this->findLocation(crate);					// Test the packages current dimensions for a spot
+	if (location.size() != 0)	return location;			// The package fits, return the location
+	crate.swapHeightAndWidth();								// Rotate the Package's Height and Width (HLW)
+	location = this->findLocation(crate);					// Test the packages current dimensions for a spot
+	if (location.size() != 0)	return location;			// The package fits, return the location
+	crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (LHW)
+	location = this->findLocation(crate);					// Test the packages current dimensions for a spot
+
+	return location;
 }
 
 /*
@@ -307,13 +364,23 @@ void compareSecondary (vector <Package> *collision, Trailer *trailer){
 
 		// Check if the volumes of both fit in the truck
 		if ((*trailer).findVolume() > (*collision)[0].findVolume()) {					// Determine if the volume fits
-			(*collision).front().setLocation(trailer->findLocation((*collision).front(), false));	// Find if the package fits
+
+			if ((*collision).front().getIsPallet())												// Finding the location for a pallet
+				(*collision).front().setLocation(trailer->palletLocation((*collision).front()));	// Find if the pallet fits
+			else																				// Finding the location for a crate
+				(*collision).front().setLocation(trailer->crateLocation((*collision).front()));	// Find if the crate fits
+
 			if ((*collision).front().getLocation().size() == 0)	compare ++;				// The location is not found
-			else 											compare --;					// The location is found
+			else 												compare --;				// The location is found
 		}
 
 		if ((*trailer).findVolume() > (*collision)[i].findVolume()) {					// Determine if the volume fits
-			(*collision)[i].setLocation(trailer->findLocation((*collision)[i], false));	// Find if it actually fits
+
+			if ((*collision).front().getIsPallet())										// Finding the location for a pallet
+				(*collision)[i].setLocation(trailer->palletLocation((*collision)[i]));	// Find if the pallet fits
+			else																		// Finding the location for a crate
+				(*collision)[i].setLocation(trailer->crateLocation((*collision)[i]));	// Find if the crate fits
+
 			if (compare == 1 && (*collision)[i].getLocation().size() == 0)	continue;	// Neither package fits, skip
 			else if ((*collision)[i].getLocation().size() == 0)	compare ++;				// The location is not found
 			else if ((*collision)[i].getLocation().size() != 0)	compare --;				// The location is found
@@ -367,10 +434,14 @@ Trailer pickNext(vector<Package> manifest, int diff) {
 					collision.end());
 			makeHeap(&manifest);									// Generate the heap again
 		} else {
-			collision.front().setLocation(trailer					// Find the location of the first item
-					.findLocation(collision.front(), false));
-			if (collision.front().getLocation().size() == 0)		// If there is not a location
+			if ((collision).front().getIsPallet())												// Finding the location for a pallet
+				(collision).front().setLocation(trailer.palletLocation((collision).front()));	// Find if the pallet fits
+			else																				// Finding the location for a crate
+				(collision).front().setLocation(trailer.crateLocation((collision).front()));	// Find if the crate fits
+
+			if (collision.front().getLocation().size() == 0) {		// If there is not a location
 				continue;											// Move to the next package
+			}
 		}
 		if (collision.front().getLocation().size() != 0) {			// Check if the location is found
 			// Check and see if there is a better location for package
@@ -378,7 +449,7 @@ Trailer pickNext(vector<Package> manifest, int diff) {
 
 			trailer.placePackage(collision.front());				// Place package in the truck
 		} else {
-			//package was not palce
+			//package was not place
 		}
 	}
 	return trailer;													// Return the trailer with the packages placed

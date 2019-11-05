@@ -25,6 +25,7 @@ private:
 	int width;
 	int fragility;
 	std::vector<int> location;
+	bool isPallet;
 
 // Declare all functions as public
 public:
@@ -39,11 +40,15 @@ public:
 	int getWidth();
 	void setWidth(int);
 	int getFragility();
+	void setIsPallet(bool);
+	bool getIsPallet();
 	void setFragility(int);
 	void swapLengthAndWidth();
+	void swapLengthAndHeight();
+	void swapHeightAndWidth();
 	std::vector<int> getLocation();
 	void setLocation(std::vector<int>);
-	Package(int, int, int, int, int, int);
+	Package(int, int, int, int, int, int, bool);
 	int findVolume();
 };
 
@@ -73,7 +78,9 @@ public:
 	Trailer();
 	void printTrailer();
 	void findOpenLocation();
-	std::vector<int> findLocation(Package, bool);
+	std::vector<int> palletLocation(Package);
+	std::vector<int> crateLocation(Package);
+	std::vector<int> findLocation(Package);
 };
 
 // Determine where the package should go
