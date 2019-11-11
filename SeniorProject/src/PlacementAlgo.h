@@ -59,13 +59,14 @@ class Trailer {
 private:
 	// Trailer broken up over half a foot
 	const static int length = 5;	// 53
-	const static int width = 5;		// 8.5
+	const static int width = 8;		// 8.5
 	const static int height = 5;	// 13
 	int volume = length * width * height;
+	std::vector<Package> placedPackages;
 
 //Declare all functions as public
 public:
-	int simulation [length][width][height];
+	int weightedTrailer [length][width][height];
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
