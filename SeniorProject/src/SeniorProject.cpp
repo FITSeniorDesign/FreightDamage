@@ -8,10 +8,12 @@
 //============================================================================
 
 // Include Packages
+#include "mainwindow.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <QApplication>
 
 // Include header files
 #include "PlacementAlgo.h"
@@ -87,5 +89,13 @@ int main(int argc, char *argv[]) {
 	}
 	// Determine which one should be used based off of testing the package damage in each as well as the best filled option
 
-	return 0;
+
+
+    //Implementation of GUI
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+
+
 }
