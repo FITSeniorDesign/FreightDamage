@@ -43,26 +43,52 @@ int main(int argc, char *argv[]) {
 
 	while (getline(file, input, '\n')) {									// Iterate over each line in the input
 		vector<int> packageInfo;											// Vector to hold the package information
-
 		for (int start = 0, end = 0; start < (int)input.length(); end++)	// Iterate over the entire string
 			if (input[end] == ',') {										// A comma is found
-				packageInfo.push_back(stoi(input.substr(start, end)));		// Convert the string to an int and save
+				try {														// Try a statement
+					packageInfo.push_back(stoi(input.substr(start, end)));	// Convert the string to an int and save
+				} catch (...) {												// Catch any exception thrown
+					if (input.substr(start, end) == "Yes")					// Input was yes
+						packageInfo.push_back(1);							// Push on a true
+					else													// Input was not yes
+						packageInfo.push_back(0);							// Push on a false
+				}
 				start = end + 1;											// Move passed the comma
 			}
 
 		manifest.push_back(Package(packageInfo[0], packageInfo[1],			// Add the package object to a list of all package objects
 				packageInfo[2], packageInfo[3], packageInfo[4],
-				packageInfo[5]));
+				packageInfo[5], packageInfo[6]));
 	}
 
-	// Run function pickNext to decide what to place next
-	for (int i = 10; i < 11; i++) {											// Check over multiple different options
-		Trailer trailer = pickNext(manifest, i);							// Return the trailer of all the items placed
-		cout << "Trailer volume: " << trailer.findVolume() << endl;												// List the volume consumed in the trailer
-		trailer.printTrailer();												// Test, do not include in final product
-	}
 
+	// Export to a text file
+	bool exportTextFile = false;														// Check if the user wants to export the text file
+	if (exportTextFile) {															// The user wants a text file
+		string textFile = "Output.txt";												// Text file name for the output
+		freopen(textFile.c_str(), "w", stdout);										// Console output to the text file
+
+		// Run function pickNext to decide what to place next
+		for (int i = 10; i < 11; i++) {												// Check over multiple different options
+			Trailer trailer = pickNext(manifest, i);								// Return the trailer of all the items placed
+			cout << "Trailer Remaining Volume: " << trailer.findVolume() << endl;	// List the volume consumed in the trailer
+			trailer.printTrailer();													// Test, do not include in final product
+		}
+
+	} else	{																		// The user does not want a text file
+		// Run function pickNext to decide what to place next
+		Trailer best;
+		for (int i = 0; i < 15; i++) {												// Check over multiple different options
+			Trailer other = pickNext(manifest, i);								// Return the trailer of all the items placed
+			if (best.findVolume() > other.findVolume())
+				best = other;
+		}
+		cout << "Trailer Remaining Volume: " << best.findVolume() << endl;	// List the volume consumed in the trailer
+		best.printTrailer();													// Test, do not include in final product
+
+	}
 	// Determine which one should be used based off of testing the package damage in each as well as the best filled option
+
 
 
     //Implementation of GUI
@@ -70,5 +96,6 @@ int main(int argc, char *argv[]) {
     MainWindow w;
     w.show();
     return a.exec();
+
 
 }

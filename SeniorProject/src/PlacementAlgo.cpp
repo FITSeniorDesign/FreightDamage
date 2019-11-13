@@ -34,6 +34,8 @@ int Package::getWidth() {	return this->width;	}
 
 vector<int> Package::getLocation() {	return location;	}
 
+bool Package::getIsPallet() {	return this->isPallet;	}
+
 // Package setter functions for each attribute
 void Package::setFragility(int fragility) {	this->fragility = fragility;	}
 
@@ -49,6 +51,8 @@ void Package::setWidth(int width) {	this->width = width;	}
 
 void Package::setLocation(vector<int> location) {	this->location = location;	}
 
+void Package::setIsPallet(bool isPallet) {	this->isPallet = isPallet;	}
+
 /*
  * Function: 	swapLengthAndWidth
  * Description: Used to check if the package will fit turned 90 degrees
@@ -60,6 +64,32 @@ void Package::swapLengthAndWidth(){
 	length = width;
 	width = temp;
 }
+
+/*
+ * Function: 	swapLengthAndHeight
+ * Description: Used to check if the package will fit turned 90 degrees
+ * Parameters: 	none
+ * Returns:		none
+ */
+void Package::swapLengthAndHeight(){
+	int temp = length;
+	length = height;
+	height = temp;
+}
+
+/*
+ * Function: 	swapHeightAndWidth
+ * Description: Used to check if the package will fit turned 90 degrees
+ * Parameters: 	none
+ * Returns:		none
+ */
+void Package::swapHeightAndWidth(){
+	int temp = height;
+	height = width;
+	width = temp;
+}
+
+
 
 /*
  * Function: 	findVolume
@@ -80,7 +110,7 @@ int Package::findVolume() {	return length * width * height;	}
  *             	fragility, the fragility of the package
  * Returns:		none
  */
-Package::Package(int iD, int weight, int length, int width, int height, int fragility) {
+Package::Package(int iD, int weight, int length, int width, int height, int fragility, bool isPallet) {
 	// Call setter functions called on each attribute
 	setID(iD);					// Set the ID of the package
 	setWeight(weight);			// Set the Weight of the package
@@ -88,6 +118,7 @@ Package::Package(int iD, int weight, int length, int width, int height, int frag
 	setWidth(width);			// Set the Width of the package
 	setHeight(height);			// Set the Height of the apckage
 	setFragility(fragility);	// Set the Fragility of the package
+	setIsPallet(isPallet);		// Set the packaging type
 }
 
 
@@ -97,14 +128,8 @@ int Trailer::getHeight() {	return this->height;	}
 
 int Trailer::getLength() {	return this->length;	}
 
-int Trailer::getWidth() {	return this->width;	}
+int Trailer::getWidth() {	return this->width;		}
 
-/*
- * Function: 	Trailer
- * Description: Used to return how much of the trailer is filled
- * Parameters: 	none
- * Returns:		trailer attribute volume
- */
 int Trailer::findVolume() {	return this->volume;	}
 
 /*
@@ -114,68 +139,63 @@ int Trailer::findVolume() {	return this->volume;	}
  * Returns:		none
  */
 Trailer::Trailer() {
-	for (int i = 0; i < this->length; i++) {			// ITerate over the length of the truck
-		for (int j = 0; j < this->width; j++) {			// Iterate over the width of the truck
-			for (int k = 0; k < this->height; k++) {	// Iterate over the height of the truck
-				simulation[i][j][k] = 0;				// Initialize each element to 0
-			}
-		}
-	}
+	for (int i = 0; i < this->length; i++)				// Iterate over the length of the truck
+		for (int j = 0; j < this->width; j++)			// Iterate over the width of the truck
+			for (int k = 0; k < this->height; k++)		// Iterate over the height of the truck
+				weightedTrailer[i][j][k] = 0;			// Initialize each element to 0
 }
 
 /*
  * Function: 	findLocation
  * Description: Used to find an open location for a package in the truck
+ * 				based off the location of other packages.
  * Parameters: 	package, trying to be placed into the trailer
- * 				secondRun, shows if the length and width swapped
  * Returns:		location of the package in the trailer
  */
-vector <int> Trailer::findLocation(Package package, bool secondRun) {
+vector <int> Trailer::findLocation(Package package) {
 	vector <int> location;															// Location where package should go
 
 	// See if the package will fit
-	for (int height = 0; height < this->height; height++) {							// Iterate over the height of the trailer
-		for (int length = 0; length < this->length; length++) {						// Iterate over the length of the trailer
-			for (int width = 0; width < this->width; width++) {						// Iterate over the width of the trailer
-				if (simulation[height][length][width] == 0 &&						// Check if the location is empty
-						(abs(height - this->height) >= package.getHeight()) &&		// Check if the package height fits
-						(abs(width - this->width)   >= package.getWidth()) &&		// Check if the package width fits
-						(abs(length - this->length) >= package.getLength())) {		// Check if the package length fits
-					bool fits = true;												// Used to show if the package fits
+	for (int height = 0; height < this->height - package.getHeight(); height++) {								// Iterate over the height of the trailer
+		for (int length = 0; length < this->length - package.getLength(); length++) {	// Iterate over the length of the trailer
+			for (int width = 0; width < this->width - package.getWidth(); width++) {	// Iterate over the width of the trailer
+				bool fits = true;														// Boolean to show there is a fill or not
+				// Check if the package fits around the other packages
+				for (Package a : this->placedPackages) {								// Iterate over all placed packages
+					vector <int> aLocation = a.getLocation();							// Get the location of the current package
+					if ((aLocation[2] == width && aLocation[1] == length &&				// The current location is filled
+							aLocation[0] == height)) {
+						fits = false;													// The package does not fit here
+						break;															// Break out of the loop and
+					}
+				}
 
-					// Check if the package fits around the opening
-					for (int i = 0; i < package.getHeight() && fits; i++) {			// Iterate over the height of the package
-						for (int j = 0; j < package.getLength() && fits; j++) {		// Iterate over the length of the package
-							for (int k = 0; k < package.getWidth() && fits; k++) {	// Iterate over the width of the package
-								if (simulation[height+i][length+j][width+k] != 0) {	// Check if the spot is taken
-									height += i;									// Move the height to the tested location
-									length += j;									// Move the length to the tested location
-									width += k;										// Move the width to the tested location
-									fits = false;									// Stops loops
-								}
+				// Check if the package fits
+				for (int i = 0; i < this->height && fits; i++)							// Iterate over the packages height
+					for (int j = 0; j < this->length && fits; j++)						// Iterate over the packages length
+						for(int k = 0; k < this->width && fits; k++)					// Iterate over the packages width
+							for (Package a : this->placedPackages) {					// Iterate over the currently placed packages
+								vector <int> aLocation = a.getLocation();				// Get the location of the current package
+								if ((aLocation[0] == height+i) || ((aLocation[0] < height+i)		// Check if the height is taken or the package ranges into the location
+										&& (aLocation[0] + a.getHeight() > height+i)))
+									if ((aLocation[1] == length+j) || ((aLocation[1] < length+j)	// Check if the length is taken or the package ranges into the location
+											&& (aLocation[1] + a.getLength() > length+j)))
+										if ((aLocation[2] == width+k) || ((aLocation[2] < width+k)	// Check if the width is taken or the package ranges into the location
+												&& (aLocation[2] + a.getWidth() > width+k))) {
+											fits = false;											// The package doesn't fit
+											break;													// Break out of the placed packages loop
+										}
 							}
-						}
-					}
-					if (fits) {														// The package fits
-
-						// Determine if the neighboring packages will break regulations (i.e.: Chemicals next to water), WILL'S REGULATIONS APPLY HERE
-						// If Regulations say place is bad, then we claim package doesn't fit and try to find a new spot
-
-
-						location.push_back(height);									// Save the height first
-						location.push_back(length);									// Save the length second
-						location.push_back(width);									// Save the width third
-						return location;											// Return a vector of the x, y, & z position in the truck
-					}
+				if (fits) {
+					location.push_back(height);								// Save the height first
+					location.push_back(length);								// Save the length second
+					location.push_back(width);								// Save the width third
+					return location;
 				}
 			}
 		}
 	}
-	if (!secondRun) {																// Check if the length and width should be swapped
-		cout << "Swapped length and width for package: " << package.getID() << endl;// Done to test for output
-		package.swapLengthAndWidth();												// Swap the length and width
-		return findLocation(package, true);											// Return the function call
-	}
+
 	return location;																// Return the location found and empty if no spot
 }
 
@@ -186,17 +206,159 @@ vector <int> Trailer::findLocation(Package package, bool secondRun) {
  * Returns:		none
  */
 void Trailer::placePackage(Package package) {
-	for(int height = 0; height < package.getHeight(); height++) {			// Iterate over the length
-		for(int length = 0; length < package.getLength(); length++) {			// Iterate over the width
-			for(int width = 0; width < package.getWidth(); width++) {	// Iterate over the height
-				simulation[(package.getLocation())[0] + height]				// Set the package ID in the trailer
+	// Place a package in the weighted trailer
+	for(int height = 0; height < package.getHeight(); height++)				// Iterate over the length
+		for(int length = 0; length < package.getLength(); length++)			// Iterate over the width
+			for(int width = 0; width < package.getWidth(); width++)			// Iterate over the height
+				this->weightedTrailer[(package.getLocation())[0] + height]	// Set the package ID in the trailer
 						   [(package.getLocation())[1] + length]
 						   [(package.getLocation())[2] + width]
 							= package.getID();
-			}
-		}
-	}
+
 	this->volume -= package.findVolume();									// Deduct the volume of the package from the overall volume of the trailer
+	this->placedPackages.push_back(package);								// Save the package as placed in the trailer
+}
+
+/*
+ * Function: 	furthestBack
+ * Description: Used to determine the better location in the truck
+ * Parameters: 	package, placed into the trailer
+ * 				a, first location in the trailer
+ * 				b, second location in the trailer
+ * Returns:		none
+ */
+std::vector<int> Trailer::furthestBack(Package dimensionsA, Package dimensionsB, std::vector<int> a, std::vector<int> b) {
+	char compare = 0;							// Used to determine which location to use
+
+	/*if (a[0] == b[0]) {			// The same layer is being examined
+		if (a[1] < b[1] && a[2] < b[2])			compare++;		// Vector a's length is farther back
+		else if (a[1] < b[1] && a[2] == b[2])	compare--;						// Vector b's length is farther back
+		//else if (a[1] < b[1] && a[2] > b[2])	compare = compare;						// Vector a's width is farther back
+		else if (a[1] > b[1] && a[2] > b[2])	compare++;						// Vector b's width is farther back
+		else if (a[1] > b[1] && a[2] == b[2])	compare++;
+		else if (a[1] == b[1] && a[2] > b[2])	compare++;
+		else if (a[1] == b[1] && a[2] < b[2])	compare--;
+	} else if (a[0] < b[0])		compare++;
+	else						compare--;*/
+	//else				compare--;				// Vector b's height is farther down
+	//if (a[1] < b[1]) 	compare++;				// Vector a's length is farther back
+	//else				compare--;				// Vector b's length is farther back
+	//if (a[2] < b[2])	compare++;				// Vector a's width is farther back
+	//else				compare--;				// Vector b's width is farther back
+
+
+	if (a[0] == b[0] && a[1] > b[1])		compare++;
+	else if (a[0] == b[0] && a[1] < b[1])	compare--;
+	else if (a[0] < b[0]) 					compare++;
+	else 									compare--;
+
+	// Check if placement a touches two walls
+	/*if (((a[2] == 0 || a[2] + dimensionsA.getWidth() == this->width) && (a[1] == 0 || a[1] + dimensionsA.getLength() == this->length))		// Check width and length
+		|| ((a[2] == 0 || (a[2] + dimensionsA.getWidth() == this->width)) && (a[0] == 0 || (a[0] + dimensionsA.getHeight() == this->height)))		// Check width and height
+		|| ((a[0] == 0 || (a[0] + dimensionsA.getHeight() == this->height)) && (a[1] == 0 || (a[1] + dimensionsA.getLength() == this->length))))	// Check height and length
+			compare++;
+
+	// Check if placement b touches two walls
+	if (((b[2] == 0 || (b[2] + dimensionsB.getWidth() == this->width)) && (b[1] == 0 || (b[1] + dimensionsB.getLength() == this->length)))		// Check width and length
+		|| ((b[2] == 0 || (b[2] + dimensionsB.getWidth() == this->width)) && (b[0] == 0 || (b[0] + dimensionsB.getHeight() == this->height)))		// Check width and height
+		|| ((b[0] == 0 || (b[0] + dimensionsB.getHeight() == this->height)) && (b[1] == 0 || (b[1] + dimensionsB.getLength() == this->length))))	// Check height and length
+			compare--;*/
+
+	// Determine which one to use
+	if (compare <= 0)		// The second is more beneficial
+		return b;			// Return the second placement
+	return a;				// Return the first placement
+}
+
+
+/*
+ * Function: 	palletLocation
+ * Description: Used to rotate the pallet correctly
+ * Parameters: 	pallet, Package to be rotated
+ * Returns:		none
+ */
+std::vector <int> Trailer::palletLocation(Package &pallet) {
+	vector <int> locationA = this->findLocation(pallet);		// Test the packages current dimensions for a spot (LWH)
+	Package dimensionA = pallet;								// Used for the first dimension of the pallet
+
+	pallet.swapLengthAndWidth();								// Rotate the Package's Length and Width (WLH)
+	vector <int> locationB = this->findLocation(pallet);		// Test the packages current dimensions for a spot
+	if (locationA.size() == 0) {								// If there is not a location found before
+		locationA = locationB;									// Save the location in the first spot
+		dimensionA = pallet;									// Move the dimensions into dimensionA
+	} else if (locationB.size() != 0 && locationA.size() != 0)		// There are two locations to check
+		if (this->furthestBack(dimensionA, pallet, locationA, locationB) == locationB) {	// Check which is the better placement
+			dimensionA = pallet;								// Save the new pallet dimensions
+			locationA = locationB;									// Save the better
+		}
+
+	pallet = dimensionA;											// Update the pallet before returning it
+
+	return locationA;												// Return the furthest back location
+}
+
+/*
+ * Function: 	crateLocation
+ * Description: Used to rotate the crate correctly
+ * Parameters: 	crate, Package to be rotated
+ * Returns:		none
+ */
+std::vector <int> Trailer::crateLocation(Package &crate) {
+	Package dimensionA = crate;									// Save the original dimensions of the pacakge
+	vector <int> locationA = palletLocation(crate);				// Check if rotation like a pallet will work (LWH, WLH)
+	if (dimensionA.getHeight() == crate.getHeight()		// Check if the dimensions changed or not
+			&& dimensionA.getLength() == crate.getLength()
+			&& dimensionA.getWidth() == crate.getWidth())
+		crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (WLH)
+
+
+	crate.swapHeightAndWidth();								// Rotate the Package's Height and Width (WHL)
+	vector <int> locationB = this->findLocation(crate);		// Test the packages current dimensions for a spot
+	if (locationA.size() == 0) {								// If there is not a location found before
+		locationA = locationB;									// Save the location in the first spot
+		dimensionA = crate;									// Move the dimensions into dimensionA
+	} else if (locationB.size() != 0 && locationA.size() != 0)	//
+		if (this->furthestBack(dimensionA, crate, locationA, locationB) == locationB) {									//
+			dimensionA = crate;								// Save the new pallet dimensions
+			locationA = locationB;									// Save the better
+		}
+
+
+	crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (HWL)
+	locationB = this->findLocation(crate);		// Test the packages current dimensions for a spot
+	if (locationA.size() == 0) {								// If there is not a location found before
+		locationA = locationB;									// Save the location in the first spot
+		dimensionA = crate;									// Move the dimensions into dimensionA
+	} else if (locationB.size() != 0 && locationA.size() != 0)	//
+		if (this->furthestBack(dimensionA, crate, locationA, locationB) == locationB) {									//
+			dimensionA = crate;								// Save the new pallet dimensions
+			locationA = locationB;									// Save the better
+		}
+
+	crate.swapHeightAndWidth();								// Rotate the Package's Height and Width (HLW)
+	locationB = this->findLocation(crate);		// Test the packages current dimensions for a spot
+	if (locationA.size() == 0) {								// If there is not a location found before
+		locationA = locationB;									// Save the location in the first spot
+		dimensionA = crate;									// Move the dimensions into dimensionA
+	} else if (locationB.size() != 0 && locationA.size() != 0)	//
+		if (this->furthestBack(dimensionA, crate, locationA, locationB) == locationB) {									//
+			dimensionA = crate;								// Save the new crate dimensions
+			locationA = locationB;									// Save the better
+		}
+
+	crate.swapLengthAndWidth();								// Rotate the Package's Length and Width (LHW)
+	locationB = this->findLocation(crate);		// Test the packages current dimensions for a spot
+		if (locationA.size() == 0) {								// If there is not a location found before
+			locationA = locationB;									// Save the location in the first spot
+			dimensionA = crate;									// Move the dimensions into dimensionA
+		} else if (locationB.size() != 0 && locationA.size() != 0)	//
+			if (this->furthestBack(dimensionA, crate, locationA, locationB) == locationB) {									//
+				dimensionA = crate;								// Save the new crate dimensions
+				locationA = locationB;									// Save the better
+			}
+
+	crate = dimensionA;
+	return locationA;
 }
 
 /*
@@ -206,13 +368,11 @@ void Trailer::placePackage(Package package) {
  * Returns:		none
  */
 void Trailer::printTrailer() {
-	// Output the package ID at each spot
-	cout << "Trailer Contents" << endl << "[H][L][W] = VALUE" << endl;
-	for (int i = 0; i < this->getHeight(); i++)								// Iterate over the height
-		for (int j = 0; j < this->getLength(); j++)							// Iterate over the length
-			for (int k = 0; k < this->getWidth(); k++)						// Iterate over the width
-				cout << "[" << i << "][" << j << "][" << k << "] = "		// Output to the location in the trailer
-						<< this->simulation[i][j][k] << endl;
+	cout << "Trailer Contents" << endl << "[H][L][W] (h, l, w) = Package ID" << endl;
+	for (Package a : this->placedPackages)
+		cout << "[" << a.getLocation()[0] << "][" << a.getLocation()[1] << "][" << a.getLocation()[2]
+			 << "] (" << a.getHeight() << ", " << a.getLength() << ", " << a.getWidth() << ")"
+			 << " = " << a.getID() << endl;
 }
 
 
@@ -307,18 +467,31 @@ void compareSecondary (vector <Package> *collision, Trailer *trailer){
 
 		// Check if the volumes of both fit in the truck
 		if ((*trailer).findVolume() > (*collision)[0].findVolume()) {					// Determine if the volume fits
-			(*collision).front().setLocation(trailer->findLocation((*collision).front(), false));	// Find if the package fits
+
+			if ((*collision).front().getIsPallet())												// Finding the location for a pallet
+				(*collision).front().setLocation(trailer->palletLocation((*collision).front()));	// Find if the pallet fits
+			else																				// Finding the location for a crate
+				(*collision).front().setLocation(trailer->crateLocation((*collision).front()));	// Find if the crate fits
+
 			if ((*collision).front().getLocation().size() == 0)	compare ++;				// The location is not found
-			else 											compare --;					// The location is found
+			else 												compare --;				// The location is found
 		}
 
 		if ((*trailer).findVolume() > (*collision)[i].findVolume()) {					// Determine if the volume fits
-			(*collision)[i].setLocation(trailer->findLocation((*collision)[i], false));	// Find if it actually fits
+
+			if ((*collision).front().getIsPallet())										// Finding the location for a pallet
+				(*collision)[i].setLocation(trailer->palletLocation((*collision)[i]));	// Find if the pallet fits
+			else																		// Finding the location for a crate
+				(*collision)[i].setLocation(trailer->crateLocation((*collision)[i]));	// Find if the crate fits
+
 			if (compare == 1 && (*collision)[i].getLocation().size() == 0)	continue;	// Neither package fits, skip
 			else if ((*collision)[i].getLocation().size() == 0)	compare ++;				// The location is not found
 			else if ((*collision)[i].getLocation().size() != 0)	compare --;				// The location is found
 
 		}
+
+		// Add extreme dimension variable
+
 
 		// Both packages fit
 		if (compare == 0)	compare += compareWeight((*collision).front(), (*collision)[i]);	// Check the weight against each other
@@ -367,18 +540,22 @@ Trailer pickNext(vector<Package> manifest, int diff) {
 					collision.end());
 			makeHeap(&manifest);									// Generate the heap again
 		} else {
-			collision.front().setLocation(trailer					// Find the location of the first item
-					.findLocation(collision.front(), false));
+			if ((collision).front().getIsPallet())												// Finding the location for a pallet
+				(collision).front().setLocation(trailer.palletLocation((collision).front()));	// Find if the pallet fits
+			else																				// Finding the location for a crate
+				(collision).front().setLocation(trailer.crateLocation((collision).front()));	// Find if the crate fits
+
 			if (collision.front().getLocation().size() == 0)		// If there is not a location
 				continue;											// Move to the next package
+
 		}
 		if (collision.front().getLocation().size() != 0) {			// Check if the location is found
+
 			// Check and see if there is a better location for package
-			// CONNOR'S WEIGHTED TRAILER
+
+			//
 
 			trailer.placePackage(collision.front());				// Place package in the truck
-		} else {
-			//package was not palce
 		}
 	}
 	return trailer;													// Return the trailer with the packages placed

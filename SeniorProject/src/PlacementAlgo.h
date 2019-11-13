@@ -25,6 +25,7 @@ private:
 	int width;
 	int fragility;
 	std::vector<int> location;
+	bool isPallet;
 
 // Declare all functions as public
 public:
@@ -39,11 +40,15 @@ public:
 	int getWidth();
 	void setWidth(int);
 	int getFragility();
+	void setIsPallet(bool);
+	bool getIsPallet();
 	void setFragility(int);
 	void swapLengthAndWidth();
+	void swapLengthAndHeight();
+	void swapHeightAndWidth();
 	std::vector<int> getLocation();
 	void setLocation(std::vector<int>);
-	Package(int, int, int, int, int, int);
+	Package(int, int, int, int, int, int, bool);
 	int findVolume();
 };
 
@@ -53,14 +58,15 @@ class Trailer {
 // Declare all attributes as private
 private:
 	// Trailer broken up over half a foot
-	const static int length = 5;	// 53
-	const static int width = 5;		// 8.5
-	const static int height = 5;	// 13
-	int volume = length * width * height;
+	const static int length = 6;	// 53
+	const static int width = 6;		// 8.5
+	const static int height = 6;	// 13
+	int volume = (length-1) * (width-1) * (height-1);
+	std::vector<Package> placedPackages;
 
 //Declare all functions as public
 public:
-	int simulation [length][width][height];
+	int weightedTrailer [length][width][height];
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
@@ -73,7 +79,10 @@ public:
 	Trailer();
 	void printTrailer();
 	void findOpenLocation();
-	std::vector<int> findLocation(Package, bool);
+	std::vector<int> palletLocation(Package&);
+	std::vector<int> crateLocation(Package&);
+	std::vector<int> findLocation(Package);
+	std::vector<int> furthestBack(Package, Package, std::vector<int>, std::vector<int>);
 };
 
 // Determine where the package should go
