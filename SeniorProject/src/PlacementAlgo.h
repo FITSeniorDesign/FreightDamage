@@ -58,15 +58,15 @@ class Trailer {
 // Declare all attributes as private
 private:
 	// Trailer broken up over half a foot
-	const static int length = 6;	// 53
-	const static int width = 6;		// 8.5
-	const static int height = 6;	// 13
-	int volume = (length-1) * (width-1) * (height-1);
+	const static int length = 10;	// 53
+	const static int width = 10;		// 8.5
+	const static int height = 10;	// 13
+	int volume = (length) * (width) * (height);
 	std::vector<Package> placedPackages;
 
 //Declare all functions as public
 public:
-	int weightedTrailer [length][width][height];
+	int weightedTrailer [length][width][height];				// 3D trailer in computing the weight of locations
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
@@ -82,7 +82,10 @@ public:
 	std::vector<int> palletLocation(Package&);
 	std::vector<int> crateLocation(Package&);
 	std::vector<int> findLocation(Package);
-	std::vector<int> furthestBack(Package, Package, std::vector<int>, std::vector<int>);
+	int furthestBack(Package, Package, std::vector<int>, std::vector<int>);
+	bool touchesWall(Package, std::vector<int>);
+	std::vector<int> determineBest(Package&, Package, std::vector<int>, std::vector<int>);
+	bool fitPackage(int, int, int, Package);
 };
 
 // Determine where the package should go
