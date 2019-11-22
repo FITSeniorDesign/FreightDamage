@@ -15,6 +15,7 @@
 
 // Create a Package Class
 class Package{
+
 // Declare all attributes as private
 private:
 	int iD;
@@ -23,8 +24,10 @@ private:
 	int length;
 	int width;
 	int fragility;
-	std::string description;
-// Declare all functions as private
+	std::vector<int> location;
+	bool isPallet;
+
+// Declare all functions as public
 public:
 	int getID();
 	void setID(int);
@@ -37,21 +40,33 @@ public:
 	int getWidth();
 	void setWidth(int);
 	int getFragility();
+	void setIsPallet(bool);
+	bool getIsPallet();
 	void setFragility(int);
-	std::string getDescription();
-	void setDescription(std::string);
-	Package();
-	Package(int, int, int, int, int, int);
+	void swapLengthAndWidth();
+	void swapLengthAndHeight();
+	void swapHeightAndWidth();
+	std::vector<int> getLocation();
+	void setLocation(std::vector<int>);
+	Package(int, int, int, int, int, int, bool);
+	int findVolume();
 };
 
 // Create a Trailer Class
 class Trailer {
+
+// Declare all attributes as private
 private:
 	// Trailer broken up over half a foot
-	int length = 106;
-	int width = 17;
-	int height = 26;
+	const static int length = 6;	// 53
+	const static int width = 6;		// 8.5
+	const static int height = 6;	// 13
+	int volume = (length-1) * (width-1) * (height-1);
+	std::vector<Package> placedPackages;
+
+//Declare all functions as public
 public:
+	int weightedTrailer [length][width][height];
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
@@ -59,12 +74,18 @@ public:
 	void setWidth(int);
 	int getHeight();
 	void setHeight(int);
-	Trailer (int, int, int);
-	void constructSimulation();
+	int findVolume();
+	void placePackage(Package);
+	Trailer();
+	void printTrailer();
+	void findOpenLocation();
+	std::vector<int> palletLocation(Package&);
+	std::vector<int> crateLocation(Package&);
+	std::vector<int> findLocation(Package);
+	std::vector<int> furthestBack(Package, Package, std::vector<int>, std::vector<int>);
 };
 
-// Place the packages
-void placement(std::vector<Package>);
-
+// Determine where the package should go
+Trailer pickNext(std::vector<Package>, int);
 
 #endif /* PLACEMENTALGO_H_ */
