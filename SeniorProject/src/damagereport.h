@@ -15,6 +15,9 @@ public:
     explicit DamageReport(QWidget *parent = nullptr);
     ~DamageReport();
 
+private slots:
+    void on_submitButton_clicked();
+
 private:
     Ui::DamageReport *ui;
 };

@@ -142,6 +142,15 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>trailerNumText</tabstop>
+  <tabstop>packageIDText</tabstop>
+  <tabstop>descriptionText</tabstop>
+  <tabstop>employeeText</tabstop>
+  <tabstop>supervisorText</tabstop>
+  <tabstop>dateText</tabstop>
+  <tabstop>submitButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
