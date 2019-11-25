@@ -118,5 +118,16 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+<<<<<<< HEAD
 	<storageModule moduleId="refreshScope"/>
+=======
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/SeniorProject"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/SeniorProject"/>
+		</configuration>
+	</storageModule>
+>>>>>>> 33c55ddd8ab1de8e9a65c10e5acd49f59ec0583e
 </cproject>
