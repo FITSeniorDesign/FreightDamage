@@ -10,6 +10,7 @@
 // Include all packages
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 // Include the function headers
 #include "PlacementAlgo.h"
@@ -121,6 +122,9 @@ Package::Package(int iD, int weight, int length, int width, int height, int frag
 	setIsPallet(isPallet);		// Set the packaging type
 }
 
+Package::Package(){
+
+}
 
 
 // Trailer getter functions for each attribute
@@ -139,10 +143,11 @@ int Trailer::findVolume() {	return this->volume;	}
  * Returns:		none
  */
 Trailer::Trailer() {
-	for (int i = 0; i < this->length; i++)				// Iterate over the length of the truck
+	/*for (int i = 0; i < this->length; i++)				// Iterate over the length of the truck
 		for (int j = 0; j < this->width; j++)			// Iterate over the width of the truck
 			for (int k = 0; k < this->height; k++)		// Iterate over the height of the truck
 				weightedTrailer[i][j][k] = 0;			// Initialize each element to 0
+*/
 }
 
 /*
@@ -219,16 +224,27 @@ vector <int> Trailer::findLocation(Package package) {
  */
 void Trailer::placePackage(Package package) {
 	// Place a package in the weighted trailer
-	for(int height = 0; height < package.getHeight(); height++)				// Iterate over the length
+	/*for(int height = 0; height < package.getHeight(); height++)			// Iterate over the length
 		for(int length = 0; length < package.getLength(); length++)			// Iterate over the width
 			for(int width = 0; width < package.getWidth(); width++)			// Iterate over the height
 				this->weightedTrailer[(package.getLocation())[0] + height]	// Set the package ID in the trailer
 						   [(package.getLocation())[1] + length]
 						   [(package.getLocation())[2] + width]
 							= package.getID();
-
+*/
 	this->volume -= package.findVolume();									// Deduct the volume of the package from the overall volume of the trailer
 	this->placedPackages.push_back(package);								// Save the package as placed in the trailer
+}
+
+/*
+ *
+ */
+void Trailer::removePackage(Package package) {
+	this->volume += package.findVolume();									// Deduct the volume of the package from the overall volume of the trailer
+	this->placedPackages.pop_back();										// Delete the last item from the list
+
+	//this->placedPackages.erase(std::remove(this->placedPackages.begin(), this->placedPackages.end(), package), this->placedPackages.end());
+	//this->placedPackages.push_back(package);								// Save the package as placed in the trailer
 }
 
 /*
@@ -516,6 +532,138 @@ void compareSecondary (vector <Package> *collision, Trailer *trailer){
 	}
 }
 
+Trailer pickNextRecursive (Trailer trailer, vector<Package> manifest, int diff) {
+	/// Trailer object is passed in, use that
+	std::cout.flush();
+	makeHeap(&manifest);			// Create a heap of the remaining packages
+
+	if (manifest.size() != 0) {										// There are still packages in the manifest
+		//int used = 0;
+		//Package arrayCol [3];									// Vector of all the collisions
+
+		//Package arrayCol[3];
+		vector <Package> collision;
+		collision.push_back(removeMin(&manifest));
+		//collision					// Take the top element of the heap
+		//used++;
+
+		for (int i = 0; i < manifest.size(); i++) {
+			cout << manifest[i].getID() << ", " << endl;
+		}
+
+		while (manifest.size() > 0 && abs(manifest.front()			// Check if there is collision based off of diff
+				.getFragility() - collision[0]
+				.getFragility()) <= diff)
+			collision.push_back((removeMin(&manifest)));				// Add the package to the end of the list
+
+		for (int i = 0; i < collision.size(); i++) {
+			cout << collision[i].getID() << ", " << endl;
+		}
+
+		// If there is a collision
+		if (collision.size() > 1) {
+			//compareSecondary(&collision, &trailer);					// Determine the next package to place in the truck
+
+			for (int w = 0, size = collision.size(); w < size; w++)	{		// Iterate over all the unused packages
+				compareSecondary(&collision, &trailer);				// Determine the next package to place in the truck
+
+				trailer.placePackage(collision.front());				// Place the package
+
+				cout << "Placing package: " << collision.front().getID() << endl;		// TESTING
+
+				//vector <Package> heapCollision;
+				// Add the unused packages to the end
+				//for (int i = 0; i < collision.size() - 1; i++) {
+				//	cout << collision[i].getID() << ", " << endl;
+					//manifest.push_back(removeMin(collision));
+					//manifest.push_back(collision.pop_back());
+				//}
+
+				for (int i = 1; i < collision.size(); i++) {
+					manifest.push_back(collision.at(i));
+					cout << collision.at(i).getID() << ", " << endl;
+				}
+
+
+				//manifest.insert(manifest.end(), collision.begin() + 1,	// Add the unplaced packages back to the manifest
+				//		collision.end());
+
+				pickNextRecursive(trailer, manifest, diff);			// Create a trailer with the remaining packages
+
+				trailer.removePackage(collision.front());					// Remove the package from the trailer
+
+				cout << "Picking up package: " << collision.front().getID() << endl;	// TESTING
+
+				(collision).front().getLocation().clear();			// Clear the location
+
+				manifest.push_back(collision.at(0));
+				cout << (manifest.at((int)manifest.size() - 1).getID()) << endl;
+				//manifest.insert(manifest.end(), collision.begin(),	// Add the placed package back to the manifest
+				//		collision.begin()+1);
+
+				for (int i = 0; i < manifest.size(); i++) {
+					cout << manifest.at(i).getID() << ", " << endl;
+				}
+
+
+				//auto temp = collision.at(0);
+				//auto tempLast =
+				//collision[0] = collision[(int)collision.size() - 1];
+				//collision.pop_back();
+				//}
+
+				for (int i = 0; i < manifest.size(); i++) {
+					cout << manifest.at(i).getID() << ", " << endl;
+				}
+				//collision[w].getLocation().clear();					// Remove the locations of the unplaced packages
+			}
+			//manifest.insert(manifest.end(), collision.begin() + 1,	// Add the unplaced packages back to the manifest
+			//		collision.end());
+			//makeHeap(&manifest);									// Generate the heap again
+
+		} else {
+			if ((collision).front().getIsPallet())												// Finding the location for a pallet
+				(collision).front().setLocation(trailer.palletLocation((collision).front()));	// Find if the pallet fits
+			else																				// Finding the location for a crate
+				(collision).front().setLocation(trailer.crateLocation((collision).front()));	// Find if the crate fits
+
+			//if (collision.front().getLocation().size() != 0)		// If there is not a location
+			//	continue;											// Move to the next package
+			//int manifestSize = manifest.size();
+
+			trailer.placePackage(collision.front());
+
+			cout << "Placing package: " << collision.front().getID() << endl;
+
+			pickNextRecursive(trailer, manifest, diff);
+
+			trailer.removePackage(collision.front());
+
+			cout << "Picking up package: " << collision.front().getID() << endl;
+
+			(collision).front().getLocation().clear();
+
+			manifest.insert(manifest.end(), collision.begin(),	// Add the placed package back to the manifest
+					collision.begin()+1);
+
+			//manifest.erase(manifest.end()-collision.size()-2, manifest.end());
+
+			//if (collision.front().getLocation().size() == 0)		// If there is not a location
+			//	continue;											// Move to the next package
+		}
+
+	} else {
+		cout << "The packages placed were:" << endl;
+		for (int i = 0; i < (int)trailer.placedPackages.size(); i++) {
+			cout << trailer.placedPackages[i].getID() << ", " << endl;
+		}
+	}
+
+	return trailer;
+
+
+}
+
 /*
  * Function:	pickNext
  * Description: Used to determine how items are placed in the trailer.
@@ -526,6 +674,7 @@ void compareSecondary (vector <Package> *collision, Trailer *trailer){
 Trailer pickNext(vector<Package> manifest, int diff) {
 	Trailer trailer = Trailer();									// Create a trailer object for the simulation
 	makeHeap(&manifest);											// Create a min heap using the manifest
+
 
 	// Test to show the heap works properly
 	while(manifest.size() > 0) {									// Iterate over the manifest
@@ -562,5 +711,6 @@ Trailer pickNext(vector<Package> manifest, int diff) {
 		if (collision.front().getLocation().size() != 0)			// Check if the location is found
 			trailer.placePackage(collision.front());				// Place package in the truck
 	}
+
 	return trailer;													// Return the trailer with the packages placed
 }

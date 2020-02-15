@@ -81,24 +81,39 @@ int main(int argc, char *argv[]) {
 	Trailer best;															// The best placement trailer
 	// Export to a text file
 	bool exportTextFile = false;											// Check if the user wants to export the text file
+	int margin = 5;
 	if (exportTextFile) {													// The user wants a text file
 		string textFile = "Output.txt";										// Text file name for the output
 		freopen(textFile.c_str(), "w", stdout);								// Console output to the text file
 
 		// Run function pickNext to decide what to place next
-		for (int i = 14; i < 15; i++) {										// Check over multiple different options
+		for (int i = margin; i < 15; i++) {										// Check over multiple different options
+			Trailer test = Trailer();
 			Trailer other = pickNext(manifest, i);							// Return the trailer of all the items placed
-			if (best.findVolume() > other.findVolume())						// The new placement is better
+			//Trailer other = pickNextRecursive(test, manifest, i);
+			if (best.findVolume() > other.findVolume())	{					// The new placement is better
 				best = other;												// Save the better location
+				margin = i;
+			} else {
+				margin = i;
+			}
 		}
 
-	} else																	// The user does not want a text file
-		for (int i = 14; i < 15; i++) {										// Check over multiple different options
-			Trailer other = pickNext(manifest, i);							// Return the trailer of all the items placed
-			if (best.findVolume() > other.findVolume())						// The new placement is better
+	} else {																	// The user does not want a text file
+		for (int i = margin; i < 6; i++) {										// Check over multiple different options
+			Trailer test = Trailer();
+			Trailer other = pickNext(manifest, i);
+			//Trailer other = pickNextRecursive(test, manifest, i);							// Return the trailer of all the items placed
+			if (best.findVolume() > other.findVolume()) {					// The new placement is better
 				best = other;												// Save the better location
+				margin = i;
+			} else {
+				margin = i;
+			}
 		}
-	cout << "Trailer Remaining Volume: " << best.findVolume() << endl;		// List the volume consumed in the trailer
+	}
+
+	cout << "Trailer Remaining Volume: " << best.findVolume() << "\nDamage margin of: " << margin << endl;		// List the volume consumed in the trailer
 	best.printTrailer();													// Test, do not include in final product
 
 

@@ -48,6 +48,7 @@ public:
 	void swapHeightAndWidth();
 	std::vector<int> getLocation();
 	void setLocation(std::vector<int>);
+	Package();
 	Package(int, int, int, int, int, int, bool);
 	int findVolume();
 };
@@ -62,11 +63,12 @@ private:
 	const static int width = 10;		// 8.5
 	const static int height = 10;	// 13
 	int volume = (length) * (width) * (height);
-	std::vector<Package> placedPackages;
+	//std::vector<Package> placedPackages;
 
 //Declare all functions as public
 public:
-	int weightedTrailer [length][width][height];				// 3D trailer in computing the weight of locations
+	std::vector<Package> placedPackages;
+	//int weightedTrailer [length][width][height];				// 3D trailer in computing the weight of locations
 	void updateSimulation ();
 	int getLength();
 	void setLength(int);
@@ -76,6 +78,7 @@ public:
 	void setHeight(int);
 	int findVolume();
 	void placePackage(Package);
+	void removePackage(Package);
 	Trailer();
 	void printTrailer();
 	void findOpenLocation();
@@ -90,5 +93,6 @@ public:
 
 // Determine where the package should go
 Trailer pickNext(std::vector<Package>, int);
+Trailer pickNextRecursive(Trailer, std::vector<Package>, int);
 
 #endif /* PLACEMENTALGO_H_ */
