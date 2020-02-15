@@ -30,7 +30,10 @@ using namespace std;
  * Returns:		fragility value of the item
  */
 int findFragility (string item) {
+<<<<<<< HEAD
 	//system("python -c src/script.py");		// Work on the python call... Throws an error bc of the C++ string to Python String
+=======
+>>>>>>> 33c55ddd8ab1de8e9a65c10e5acd49f59ec0583e
 	return 0;
 }
 
