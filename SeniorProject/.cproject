@@ -18,6 +18,10 @@
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.exe.debug.467769382" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.debug"/>
 							<builder buildPath="${workspace_loc:/SeniorProject}/Debug" id="cdt.managedbuild.tool.gnu.builder.mingw.base.523548603" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.53454171" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
+								<option id="gnu.both.asm.option.include.paths.483124217" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;C:\Python27\include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Python27\Lib&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1968352756" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.1977733518" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
@@ -114,6 +118,9 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+<<<<<<< HEAD
+	<storageModule moduleId="refreshScope"/>
+=======
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/SeniorProject"/>
@@ -122,4 +129,5 @@
 			<resource resourceType="PROJECT" workspacePath="/SeniorProject"/>
 		</configuration>
 	</storageModule>
+>>>>>>> 33c55ddd8ab1de8e9a65c10e5acd49f59ec0583e
 </cproject>
