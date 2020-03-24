@@ -9,6 +9,7 @@
 
 #include "PlacementAlgo.h"
 #include "damagereport.h"
+#include "outputwindow.h"
 
 using namespace std;
 
@@ -54,10 +55,12 @@ void MainWindow::fillManifestTable(QString filename)
             {
                 if (input[end] == ',') {										// A comma is found
                     string stdString = input.substr(start, end - start);
-                    cout << stdString << endl;
                     try {														// Try a statement
                         packageInfo.push_back(stoi(input.substr(start, end)));	// Convert the string to an int and save
                         QString data = QString::fromStdString(stdString);
+                        if (column == 0) {
+                            packageIDnums.append(data);
+                        }
                         ui->tableWidget->setItem(row, column, new QTableWidgetItem(data));
                     } catch (...) {												// Catch any exception thrown
                         if (stdString == "Yes") {		// Input was yes
@@ -91,8 +94,34 @@ void MainWindow::on_reportButton_clicked()
         QMessageBox::warning(this, "Warning", "No items to report damages on.");
     }
     else {
-        DamageReport *damageReport = new DamageReport();
+        DamageReport *damageReport = new DamageReport(this, &packageIDnums);
         damageReport->show();
     }
 
+}
+
+void MainWindow::on_sortFreightButton_clicked()
+{
+    if (ui->csvLineEdit->text().isEmpty())
+    {
+        QMessageBox::warning(this, "Warning", "No items to sort.");
+    }
+    else {
+        OutputWindow *outputWindow = new OutputWindow(ui->tableWidget->rowCount());
+        outputWindow->show();
+    }
+}
+
+QTableWidget* MainWindow::getmainTable() const
+{
+    return ui->tableWidget;
+}
+
+void MainWindow::setRowColor(int row, Qt::GlobalColor color)
+{
+    for (int i = 0; i < ui->tableWidget->columnCount(); i++)
+    {
+        QTableWidgetItem *tabItem = ui->tableWidget->item(row, i);
+        tabItem->setBackground(QColor("red"));
+    }
 }
