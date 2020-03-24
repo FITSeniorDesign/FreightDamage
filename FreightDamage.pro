@@ -28,14 +28,10 @@ HEADERS += \
     SeniorProject/src/mainwindow.h \
     SeniorProject/src/outputwindow.h
 
-
-
 FORMS += \
     SeniorProject/src/damagereport.ui \
     SeniorProject/src/mainwindow.ui \
     SeniorProject/src/outputwindow.ui
-
-
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

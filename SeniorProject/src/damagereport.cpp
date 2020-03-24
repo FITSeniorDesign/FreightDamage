@@ -14,7 +14,6 @@ DamageReport::DamageReport(MainWindow *mainWindow, QStringList *packageIDnums, Q
     {
         ui->packageIDCombo->addItem(packageIDnums->at(row));
     }
-
 }
 
 DamageReport::~DamageReport()
@@ -40,5 +39,4 @@ void DamageReport::on_submitButton_clicked()
         int damPackage = packageID->currentIndex();
         mainWindow->setRowColor(damPackage, Qt::red);
     }
-
 }
