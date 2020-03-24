@@ -19,18 +19,21 @@ SOURCES += \
     SeniorProject/src/SeniorProject.cpp \
     SeniorProject/src/PlacementAlgo.cpp \
     SeniorProject/src/damagereport.cpp \
-    SeniorProject/src/mainwindow.cpp
+    SeniorProject/src/mainwindow.cpp \
+    SeniorProject/src/outputwindow.cpp
 
 HEADERS += \
     SeniorProject/src/PlacementAlgo.h \
     SeniorProject/src/damagereport.h \
-    SeniorProject/src/mainwindow.h
+    SeniorProject/src/mainwindow.h \
+    SeniorProject/src/outputwindow.h
 
 
 
 FORMS += \
     SeniorProject/src/damagereport.ui \
-    SeniorProject/src/mainwindow.ui
+    SeniorProject/src/mainwindow.ui \
+    SeniorProject/src/outputwindow.ui
 
 
 

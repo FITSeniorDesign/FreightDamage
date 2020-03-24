@@ -107,9 +107,6 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="packageIDText"/>
-    </item>
     <item row="6" column="0">
      <widget class="QLabel" name="label_8">
       <property name="text">
@@ -125,6 +122,9 @@
     </item>
     <item row="6" column="1">
      <widget class="QLineEdit" name="dateText"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QComboBox" name="packageIDCombo"/>
     </item>
    </layout>
   </widget>
@@ -144,7 +144,6 @@
  </widget>
  <tabstops>
   <tabstop>trailerNumText</tabstop>
-  <tabstop>packageIDText</tabstop>
   <tabstop>descriptionText</tabstop>
   <tabstop>employeeText</tabstop>
   <tabstop>supervisorText</tabstop>
